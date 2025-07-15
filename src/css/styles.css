@@ -145,5 +145,32 @@ img {
 display: flex;
 justify-content: center;
 align-items: center;
-margin-top: 20px;
+/* margin-top: 20px; */
+}
+
+.box-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 32px;
+  margin-bottom: 44px;
+}
+
+.btn-more {
+  cursor: pointer;
+    border: none;
+    border-radius: 8px;
+    width: 125px;
+    height: 40px;
+    background-color: #4e75ff;
+    font-weight: 500;
+    font-size: 16px;
+    letter-spacing: 0.04em;
+    color: #fff;
+    transition: background-color 300ms ease-in-out;
+}
+
+.btn-more:hover,
+.btn-more:focus {
+  background-color: #6c8cff;
 }

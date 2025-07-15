@@ -1,6 +1,7 @@
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 const loader = document.querySelector('.box-loader');
+const btnMore = document.querySelector('.btn-more');
 const box = new SimpleLightbox('.gallery-item a', {
   captionsData: 'alt',
   captionDelay: 250,
@@ -9,7 +10,7 @@ const box = new SimpleLightbox('.gallery-item a', {
 const galleryContainer = document.querySelector('.gallery');
 
 export function createGallery(images) {
-  const imagesList = images
+  const imagesList = images.hits
     .map(
       ({
         webformatURL,
@@ -53,4 +54,12 @@ export function showLoader() {
 
 export function hideLoader() {
   loader.classList.add('is-hidden');
+}
+
+export function showLoadMoreButton() {
+  btnMore.classList.remove('is-hidden');
+}
+
+export function hideLoadMoreButton() {
+  btnMore.classList.add('is-hidden');
 }
