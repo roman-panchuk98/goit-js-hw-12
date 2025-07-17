@@ -17,6 +17,7 @@ const btnMore = document.querySelector('.btn-more');
 let currentPage = 1;
 let currentText = '';
 let totalPages = 0;
+const perPage = 15;
 
 form.addEventListener('submit', ev => {
   ev.preventDefault();
@@ -30,7 +31,7 @@ form.addEventListener('submit', ev => {
       title: 'Please write word!',
       position: 'topRight',
     });
-    return form.reset();
+    return;
   }
 
   clearGallery();
@@ -49,7 +50,8 @@ form.addEventListener('submit', ev => {
         hideLoadMoreButton();
         return;
       }
-      totalPages = Math.ceil(responseData.totalHits / responseData.hits.length);
+      totalPages = Math.ceil(responseData.totalHits / perPage);
+
       if (currentPage >= totalPages) {
         iziToast.info({
           title: "We're sorry, but you've reached the end of search results.",
@@ -58,6 +60,7 @@ form.addEventListener('submit', ev => {
         hideLoadMoreButton();
       }
       createGallery(responseData);
+      form.reset();
     } catch (error) {
       iziToast.error({
         title: error.message,
@@ -70,8 +73,6 @@ form.addEventListener('submit', ev => {
       }
     }
   }, 1000);
-
-  form.reset();
 });
 
 btnMore.addEventListener('click', () => {
@@ -82,28 +83,39 @@ btnMore.addEventListener('click', () => {
     try {
       const responseData = await getImagesByQuery(currentText, currentPage);
 
+      if (responseData.hits.length === 0) {
+        iziToast.error({
+          title: `Sorry, there are no images matching your search ${currentText}. Please try again!`,
+          position: 'topRight',
+        });
+        hideLoadMoreButton();
+        return;
+      }
+
       if (currentPage >= totalPages) {
         iziToast.info({
           title: "We're sorry, but you've reached the end of search results.",
           position: 'topRight',
         });
         hideLoadMoreButton();
+      } else {
+        showLoadMoreButton();
       }
       createGallery(responseData);
       let itemGallery = document.querySelector('.gallery-item');
-      let heightOneItem = itemGallery.getBoundingClientRect().height;
-      scrollBy({
-        top: heightOneItem * 2,
-        behavior: 'smooth',
-      });
+      if (itemGallery) {
+        let heightOneItem = itemGallery.getBoundingClientRect().height;
+        scrollBy({
+          top: heightOneItem * 2,
+          behavior: 'smooth',
+        });
+      }
     } catch (error) {
       iziToast.error({
         title: error.message,
       });
-    }
-    hideLoader();
-    if (currentPage < totalPages) {
-      showLoadMoreButton();
+    } finally {
+      hideLoader();
     }
   }, 1000);
 });
