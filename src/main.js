@@ -19,7 +19,7 @@ let currentText = '';
 let totalPages = 0;
 const perPage = 15;
 
-form.addEventListener('submit', ev => {
+form.addEventListener('submit', async ev => {
   ev.preventDefault();
   hideLoadMoreButton();
   currentPage = 1;
@@ -38,84 +38,78 @@ form.addEventListener('submit', ev => {
 
   showLoader();
 
-  setTimeout(async () => {
-    try {
-      const responseData = await getImagesByQuery(textValue, currentPage);
+  try {
+    const responseData = await getImagesByQuery(textValue, currentPage);
 
-      if (responseData.hits.length === 0) {
-        iziToast.error({
-          title: `Sorry, there are no images matching your search ${textValue}. Please try again!`,
-          position: 'topRight',
-        });
-        hideLoadMoreButton();
-        return;
-      }
-      totalPages = Math.ceil(responseData.totalHits / perPage);
-
-      if (currentPage >= totalPages) {
-        iziToast.info({
-          title: "We're sorry, but you've reached the end of search results.",
-          position: 'topRight',
-        });
-        hideLoadMoreButton();
-      }
-      createGallery(responseData);
-      form.reset();
-    } catch (error) {
+    if (responseData.hits.length === 0) {
       iziToast.error({
-        title: error.message,
+        title: `Sorry, there are no images matching your search ${textValue}. Please try again!`,
         position: 'topRight',
       });
-    } finally {
-      hideLoader();
-      if (currentPage < totalPages) {
-        showLoadMoreButton();
-      }
+      return;
     }
-  }, 1000);
+    totalPages = Math.ceil(responseData.totalHits / perPage);
+
+    if (currentPage >= totalPages) {
+      iziToast.info({
+        title: "We're sorry, but you've reached the end of search results.",
+        position: 'topRight',
+      });
+    } else {
+      showLoadMoreButton();
+    }
+
+    createGallery(responseData);
+
+    form.reset();
+  } catch (error) {
+    iziToast.error({
+      title: error.message,
+      position: 'topRight',
+    });
+  } finally {
+    hideLoader();
+  }
 });
 
-btnMore.addEventListener('click', () => {
+btnMore.addEventListener('click', async () => {
   hideLoadMoreButton();
   showLoader();
   currentPage += 1;
-  setTimeout(async () => {
-    try {
-      const responseData = await getImagesByQuery(currentText, currentPage);
 
-      if (responseData.hits.length === 0) {
-        iziToast.error({
-          title: `Sorry, there are no images matching your search ${currentText}. Please try again!`,
-          position: 'topRight',
-        });
-        hideLoadMoreButton();
-        return;
-      }
+  try {
+    const responseData = await getImagesByQuery(currentText, currentPage);
 
-      if (currentPage >= totalPages) {
-        iziToast.info({
-          title: "We're sorry, but you've reached the end of search results.",
-          position: 'topRight',
-        });
-        hideLoadMoreButton();
-      } else {
-        showLoadMoreButton();
-      }
-      createGallery(responseData);
-      let itemGallery = document.querySelector('.gallery-item');
-      if (itemGallery) {
-        let heightOneItem = itemGallery.getBoundingClientRect().height;
-        scrollBy({
-          top: heightOneItem * 2,
-          behavior: 'smooth',
-        });
-      }
-    } catch (error) {
-      iziToast.error({
-        title: error.message,
+    if (responseData.hits.length === 0) {
+      iziToast.info({
+        title: "We're sorry, but you've reached the end of search results.",
+        position: 'topRight',
       });
-    } finally {
-      hideLoader();
+      return;
     }
-  }, 1000);
+
+    if (currentPage >= totalPages) {
+      iziToast.info({
+        title: "We're sorry, but you've reached the end of search results.",
+        position: 'topRight',
+      });
+    } else {
+      showLoadMoreButton();
+    }
+    createGallery(responseData);
+    let itemGallery = document.querySelector('.gallery-item');
+    if (itemGallery) {
+      let heightOneItem = itemGallery.getBoundingClientRect().height;
+      scrollBy({
+        top: heightOneItem * 2,
+        behavior: 'smooth',
+      });
+    }
+  } catch (error) {
+    iziToast.error({
+      title: error.message,
+    });
+  } finally {
+    hideLoader();
+  }
 });
